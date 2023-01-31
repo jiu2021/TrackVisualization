@@ -9,6 +9,7 @@ router.post('/upload', ctx => uploadCtr.upload(ctx));
 
 router.get('/test', (ctx) => {
   console.log(ctx)
+  return ctx.body = '<h1>test</h1>'
 })
 
 module.exports = router;
