@@ -10,7 +10,7 @@ class RunService {
   }
 
   async findByBatch(num) {
-    return await Run.find({ sample_batch: num });
+    return await Run.find({ sample_batch: num }).sort({ time_rel: 1 });
   }
 }
 

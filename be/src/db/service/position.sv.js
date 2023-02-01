@@ -9,8 +9,8 @@ class PosService {
     }
   }
 
-  async findByBatch(num) {
-    return await Pos.find({ sample_batch: num });
+  async findPosByBatch(num) {
+    return await Pos.find({ sample_batch: num }).sort({ time_rel: 1 });
   }
 }
 

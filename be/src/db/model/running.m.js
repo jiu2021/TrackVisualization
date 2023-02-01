@@ -32,11 +32,9 @@ const RunSchema = new Schema({
   accz: {
     type: Number
   },
-  angle: {
-    type: Number
-  },
-  length: {
-    type: Number
+  isSwing: {
+    type: Boolean,
+    default: false
   }
 })
 
