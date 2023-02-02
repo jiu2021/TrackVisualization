@@ -144,7 +144,8 @@ def json_position():
     # 从标准输入中获取json数据
     data = sys.stdin.readline()
     # with open(pos_json, 'r', encoding='utf-8') as jsonfile:
-    json_data = json.loads(json.loads(data))
+    # json_data = json.loads(json.loads(data))
+    json_data = json.loads(data)
     for each in json_data:
         error = error_rate([each["x"]], [each["y"]], gt)
         each["error"] = round(float(error[0]), 3)
