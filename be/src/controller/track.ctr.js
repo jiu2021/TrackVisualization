@@ -4,7 +4,7 @@ const spawnSync = require('child_process').spawnSync;
 const { findPosByBatch } = require('../db/service/position.sv');
 const { findPdrByBatch, createPdr } = require('../db/service/pdr.sv');
 const { findRunByBatch } = require('../db/service/running.sv');
-const const_res = require('../const_res');
+const returnRes = require('../const_res');
 class TrackCtr {
   async getPosTrackByBatch(ctx) {
     const { batch } = ctx.query;
@@ -21,10 +21,8 @@ class TrackCtr {
     // });
 
     const pos_track = this.getPosTrackByPy(res);
-
-    const_res.code = pos_track.length != 0 ? 200 : 400;
-    const_res.result = pos_track;
-    return ctx.body = const_res;
+    const code = pos_track.length != 0 ? 200 : 400;
+    return ctx.body = returnRes(code, '获取定位路径成功', pos_track)
   }
 
   getPosTrackByPy(pos_data) {
@@ -59,6 +57,7 @@ class TrackCtr {
   async getPdrTrackByBatch(ctx) {
     let { batch } = ctx.query;
     batch = parseInt(batch);
+    let result;
     try {
       const res = await findPdrByBatch(batch);
       if (res.length == 0) {
@@ -66,21 +65,17 @@ class TrackCtr {
         const run_data = await findRunByBatch(batch);
         const pos_data = await findPosByBatch(batch);
         // 调用py
-        const_res.result = this.getPdrTrackByPy(pos_data, run_data);
+        result = this.getPdrTrackByPy(pos_data, run_data);
+
       } else {
-        // @ts-ignore
-        const_res.result = res;
+        result = res;
       }
     } catch (error) {
       console.log(error);
-      const_res.code = 400;
-      const_res.msg = '生成pdr路径失败';
-      return ctx.body = const_res;
+      return ctx.body = returnRes(400, '生成pdr路径失败', {})
     }
 
-    const_res.code = 200;
-    const_res.msg = '生成pdr路径成功';
-    return ctx.body = const_res;
+    return ctx.body = returnRes(200, '生成pdr路径成功', result);
   }
 
   getPdrTrackByPy(pos_data, run_data) {

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const execSync = require('child_process').execSync;
 // const exec = require('child_process').exec;
-const const_res = require('../const_res');
+const returnRes = require('../const_res');
 const { createPos } = require('../db/service/position.sv');
 const { createRun } = require('../db/service/running.sv');
 
@@ -14,12 +14,12 @@ class UploadCtr {
   upload(ctx) {
     const fileTypes = ['text/csv'];
     let file = null;
+    const const_res = {};
     // pos_file, run_file是文件上传时的参数名
     const { pos_file, run_file } = ctx.request.files;
     // 检查文件是否为空
     if (!pos_file && !run_file) {
-      const_res.msg = '上传文件为空';
-      return ctx.body = const_res;
+      return ctx.body = returnRes(400, '上传文件为空', {});
     } else if (pos_file && !run_file) {
       file = pos_file;
     } else if (!pos_file && run_file) {
@@ -31,8 +31,7 @@ class UploadCtr {
       // 删除非法文件
       this.file_name_arr.pop();
       this.deleteFile(file.filepath);
-      const_res.msg = '上传文件格式不正确';
-      return ctx.body = const_res;
+      return ctx.body = returnRes(400, '上传文件格式不正确', {});
     }
 
     // load到数据库
@@ -47,10 +46,8 @@ class UploadCtr {
     }
 
     // 返回响应
-    const_res.code = 200;
-    const_res.msg = '上传文件成功';
-    const_res.result = file.newFilename;
-    return ctx.body = const_res
+    const_res.filename = file.newFilename;
+    return ctx.body = returnRes(200, '上传文件成功', const_res);
   }
 
   // 调用py脚本处理position.csv文件

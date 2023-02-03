@@ -5,7 +5,7 @@ const KoaStatic = require('koa-static');
 
 const uploadRouter = require('./src/router/upload');
 const trackRouter = require('./src/router/track');
-// const tagRouter = require('../router/tag.route');
+const userRouter = require('./src/router/user');
 // const errHandler = require('./errHandler');
 
 const app = new Koa();
@@ -27,10 +27,10 @@ app.use(KoaStatic(path.join(__dirname, './upload')));
 // 注册路由
 app.use(uploadRouter.routes());
 app.use(trackRouter.routes());
-// app.use(tagRouter.routes());
+app.use(userRouter.routes());
 
-// // 导入配置文件
-// require('dotenv').config();
+// 导入配置文件
+require('dotenv').config();
 
 // //  统一错误处理
 // app.on('error', errHandler);
