@@ -38,6 +38,6 @@ const RunSchema = new Schema({
   }
 })
 
-let runModle = mongoose.model('run', RunSchema);
+let runModle = mongoose.model('runs', RunSchema);
 // 导出数据表
 module.exports = runModle;

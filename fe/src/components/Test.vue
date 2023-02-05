@@ -16,7 +16,7 @@ import {
 import { LinesChart, LinesSeriesOption } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
 import { onMounted } from 'vue';
-import axios from "axios"
+import axios from "axios";
 
 echarts.use([
   TitleComponent,
@@ -39,7 +39,7 @@ function init() {
   var chartDom = document.getElementById('main')!;
   var myChart = echarts.init(chartDom);
   var option: EChartsOption;
-  var img_url = 'http://localhost:8080/test.svg';
+  var img_url = 'http://localhost:8888/bg.svg';
   console.log(chartDom)
   axios.get(img_url).then(function (response) {
     console.log(response);
