@@ -39,10 +39,9 @@ function init() {
   var chartDom = document.getElementById('main')!;
   var myChart = echarts.init(chartDom);
   var option: EChartsOption;
-  var img_url = 'http://localhost:8888/bg.svg';
+  var img_url = 'http://localhost:8888/test.svg';
   console.log(chartDom)
   axios.get(img_url).then(function (response) {
-    console.log(response);
     register(response.data);
   });
   function register(svg: any) {
@@ -56,6 +55,7 @@ function init() {
       tooltip: {},
       geo: {
         map: 'MacOdrum-LV5-floorplan-web',
+        // 开启缩放或者平移
         roam: true,
         emphasis: {
           itemStyle: {
@@ -70,6 +70,7 @@ function init() {
         {
           name: 'Route',
           type: 'lines',
+          // 地理坐标系，经纬度
           coordinateSystem: 'geo',
           geoIndex: 0,
           emphasis: {
@@ -77,6 +78,7 @@ function init() {
               show: false
             }
           },
+          // 多段线
           polyline: true,
           lineStyle: {
             color: '#c46e54',
