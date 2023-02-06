@@ -11,9 +11,10 @@ import {
   TooltipComponentOption,
   GeoComponent,
   GeoComponentOption,
-  GraphicComponent
+  GraphicComponent,
+  GridComponent
 } from 'echarts/components';
-import { LinesChart, LinesSeriesOption } from 'echarts/charts';
+import { LinesChart, LinesSeriesOption, GraphSeriesOption, GraphChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
 import { onMounted } from 'vue';
 import axios from "axios";
@@ -24,7 +25,9 @@ echarts.use([
   GeoComponent,
   LinesChart,
   CanvasRenderer,
-  GraphicComponent
+  GraphicComponent,
+  GraphChart,
+  GridComponent
 ]);
 
 type EChartsOption = echarts.ComposeOption<
@@ -32,6 +35,7 @@ type EChartsOption = echarts.ComposeOption<
   | TooltipComponentOption
   | GeoComponentOption
   | LinesSeriesOption
+  | GraphSeriesOption
 >;
 onMounted(() => init());
 
@@ -40,7 +44,7 @@ function init() {
   var myChart = echarts.init(chartDom);
   var option: EChartsOption;
   var img_url = 'http://localhost:8888/test.svg';
-  console.log(chartDom)
+  // console.log(chartDom)
   axios.get(img_url).then(function (response) {
     register(response.data);
   });
@@ -56,7 +60,7 @@ function init() {
       geo: {
         map: 'MacOdrum-LV5-floorplan-web',
         // 开启缩放或者平移
-        roam: true,
+        roam: false,
         emphasis: {
           itemStyle: {
             color: undefined
@@ -123,11 +127,107 @@ function init() {
         }
       ]
     };
-    myChart.setOption(option);
+    myChart.setOption(new_option);
   }
-
-  //myChart.setOption(option);
 }
+
+var new_option: EChartsOption;
+new_option = {
+  title: {
+    text: 'TrackVisualization',
+    left: 'center',
+  },
+  tooltip: {},
+  geo: {
+    map: 'MacOdrum-LV5-floorplan-web',
+    // 开启缩放或者平移
+    roam: false,
+    emphasis: {
+      itemStyle: {
+        color: undefined
+      },
+      label: {
+        show: false
+      }
+    }
+  },
+  xAxis: {
+    type: 'value',
+    data: [0, 50]
+  },
+  yAxis: {
+    type: 'value',
+    data: [0, 50]
+  },
+  series: [
+    {
+      name: 'Route',
+      type: 'graph',
+      // 地理坐标系，经纬度
+      coordinateSystem: 'cartesian2d',
+      // xAxisIndex: 0,
+      // yAxisIndex: 0,
+      emphasis: {
+        label: {
+          show: false
+        }
+      },
+      edgeSymbol: ['none', 'arrow'],
+      data: [
+        {
+          name: '1',
+          value: [0, 0],
+          symbolSize: 10,
+          itemStyle: {
+            color: 'red'
+          }
+        },
+        {
+          name: '2',
+          value: [12, 5],
+        },
+        {
+          name: '3',
+          value: [10, 20],
+        },
+        {
+          name: '4',
+          value: [30, 34],
+        },
+        {
+          name: '5',
+          value: [70, 60],
+          symbolSize: 10,
+          itemStyle: {
+            color: 'red'
+          }
+        },
+      ],
+      links: [
+        {
+          source: '1',
+          target: '2',
+          lineStyle: {
+            type: 'solid',
+            color: '#aaa',
+            width: 2,
+          },
+          symbolSize: [0, 5]
+        },
+        {
+          source: '2',
+          target: '3',
+          lineStyle: {
+            type: 'solid',
+            color: '#aaa',
+            width: 2
+          },
+          symbolSize: [0, 5]
+        }
+      ]
+    }
+  ],
+};
 
 
 </script>
