@@ -1,6 +1,6 @@
 import csv
 import json
-
+import sys
 
 class GroundTruth:
     def __init__(self):
@@ -30,5 +30,11 @@ def getGroundTruth(ground_truth_csv):
 
 
 if __name__ == '__main__':
-    a = getGroundTruth('./ground_truth.csv')
-    print(a)
+    # 测试
+    # a = getGroundTruth('py/ground_truth.csv')
+    # 从命令行中获取的文件名
+    filename = sys.argv[1]
+    a = getGroundTruth('upload/{name}'.format(name = filename))
+    # python列表转json
+    jsonArr = json.dumps(a, ensure_ascii=False)
+    print(jsonArr)
