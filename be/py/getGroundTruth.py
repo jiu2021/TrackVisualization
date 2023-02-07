@@ -12,8 +12,8 @@ class GroundTruth:
     def get_inf(self):
         for i in range(len(self.x)):
             dic = {'step': float(self.step[i]), 'x': float(self.x[i]), 'y': float(self.y[i])}
-            j = json.dumps(dic)
-            self.inf.append(j)
+            # j = json.dumps(dic)
+            self.inf.append(dic)
 
 
 def getGroundTruth(ground_truth_csv):

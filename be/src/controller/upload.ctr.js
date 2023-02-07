@@ -102,7 +102,8 @@ class UploadCtr {
     this.file_name_arr.push(file.newFilename);
     console.log(this.file_name_arr);
     // 用于记录该truth对应哪些采样批次数据
-    const { sample_arr } = ctx.request.body;
+    let { sample_arr } = ctx.request.body;
+    sample_arr = JSON.parse(sample_arr);
     const_res.sample_arr = sample_arr;
     this.loadTruthByPy('getGroundTruth.py', file.newFilename, sample_arr);
 
@@ -205,12 +206,9 @@ class UploadCtr {
     try {
       const pos_json = JSON.parse(res.toString("utf8"));
       for (let i = 0; i < pos_json.length; i++) {
-        for (let j = 0; j < pos_json[i].length; j++) {
-          let res = JSON.parse(pos_json[i][j]);
-          sample_arr.forEach(e => {
-            createTruth({ ...res, sample_batch: e });
-          });
-        }
+        sample_arr.forEach(e => {
+          createTruth({ ...pos_json[i], sample_batch: parseInt(e) });
+        });
       }
     } catch (error) {
       console.error(error);
