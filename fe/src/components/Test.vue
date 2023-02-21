@@ -37,13 +37,14 @@ type EChartsOption = echarts.ComposeOption<
   | LinesSeriesOption
   | GraphSeriesOption
 >;
+
 onMounted(() => init());
 
 function init() {
   var chartDom = document.getElementById('main')!;
   var myChart = echarts.init(chartDom);
   var option: EChartsOption;
-  var img_url = 'http://localhost:8888/test.svg';
+  var img_url = 'http://localhost:8890/test.svg';
   // console.log(chartDom)
   axios.get(img_url).then(function (response) {
     register(response.data);

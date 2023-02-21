@@ -76,7 +76,7 @@ class UploadCtr {
     return ctx.body = returnRes(200, '上传文件成功', const_res);
   }
 
-  // 接受run文件
+  // 接受truth文件
   uploadTruth(ctx) {
     const fileTypes = ['text/csv'];
     let file = null;
