@@ -22,6 +22,7 @@ import { ref } from "vue";
 import { loginM } from "@/model";
 import { reqLogin } from "@/api";
 import { ElMessage } from "element-plus";
+import router from "@/router";
 const account = ref('');
 const pwd = ref('');
 const goLogin = (account: string, pwd: string) => {
@@ -36,6 +37,7 @@ const goLogin = (account: string, pwd: string) => {
           message: '登陆成功',
           type: 'success',
         });
+        router.push({ name: 'home' });
       } else {
         ElMessage({
           showClose: true,

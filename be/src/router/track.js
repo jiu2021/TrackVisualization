@@ -8,5 +8,7 @@ const router = new Router({ prefix: '/api/track' });
 router.get('/pos', auth, ctx => trackCtr.getPosTrackByBatch(ctx));
 // 获取pdr路径
 router.get('/pdr', auth, ctx => trackCtr.getPdrTrackByBatch(ctx));
+// 获取pdr路径
+router.get('/truth', auth, ctx => trackCtr.getTruthTrackByBatch(ctx));
 
 module.exports = router;

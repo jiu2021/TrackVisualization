@@ -3,8 +3,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pywt
 import math
-import position
 import json
+import sys
+
+class Position:
+    def __init__(self):
+        self.sample_batch = 0
+        self.x = []
+        self.y = []
+        self.z = []
+        self.timestamp = []
+        self.time_rel = []
+        self.error = []
+        self.sample_time = []
 
 
 class Running:
@@ -77,14 +88,15 @@ class Running:
         plt.subplot(3, 1, 2)
         plt.plot(x, self.accy)
         plt.subplot(3, 1, 3)
-        # if self.step_max:
-        #     x_max = [i[0] for i in self.step_max]
-        #     y_max = [i[1] for i in self.step_max]
-        #     plt.scatter(x_max, y_max, c='r')
-        # if self.step_min:
-        #     x_min = [i[0] for i in self.step_min]
-        #     y_min = [i[1] for i in self.step_min]
-        #     plt.scatter(x_min, y_min, c='g')
+        if self.model == 0:
+            if self.step_max:
+                x_max = [i[0] for i in self.step_max]
+                y_max = [i[1] for i in self.step_max]
+                plt.scatter(x_max, y_max, c='r')
+            if self.step_min:
+                x_min = [i[0] for i in self.step_min]
+                y_min = [i[1] for i in self.step_min]
+                plt.scatter(x_min, y_min, c='g')
         plt.plot(x, self.accz)
         # plt.show()
 
@@ -144,6 +156,7 @@ class Running:
         for index in range(len(self.step_max)):
             step_time.append([self.step_min[index][0], self.step_max[index][0]])
         self.step_time = step_time
+        self.length = [0.6 for _ in range(2*len(self.step_time))]
 
         # if self.step_time[-1][1] > 0 and mn_index != lens - 1:
         #     step += 1
@@ -214,9 +227,6 @@ class Running:
     def cal_angle(self, offset):
         [q0, q1, q2, q3] = [1, 0, 0, 0]
         gamma, theta, phi = [], [], []
-        # ax = sum(self.accx) / len(self.accx)
-        # ay = sum(self.accy) / len(self.accy)
-        # az = sum(self.accz) / len(self.accz)
         length = len(self.timestamp)
         alpha_new = offset
         alpha = []
@@ -228,13 +238,18 @@ class Running:
         bias_az = - 0.1489
         for i in range(length - 1):
             dt = (self.timestamp[i + 1] - self.timestamp[i]) / 1000
-            [gx, gy, gz] = [self.gyroscopex[i] / 1250 * 90 * np.pi / 180 - bias_gyx,
-                            self.gyroscopey[i] / 1250 * 90 * np.pi / 180 - bias_gyy,
-                            self.gyroscopez[i] / 1250 * 90 * np.pi / 180 - bias_gyz]
-
             ax, ay, az = self.accx[i] - bias_ax, self.accy[i] - bias_ay, self.accz[i] - bias_az
-            alpha_new += (ax * self.gyroscopex[i] + ay * self.gyroscopey[i] + az * self.gyroscopez[i]) * dt \
-                     / np.sqrt(ax ** 2 + ay ** 2 + az ** 2) * 0.1
+            if self.model == 0:
+                az -= 1
+            add = (ax * self.gyroscopex[i] + ay * self.gyroscopey[i] + az * self.gyroscopez[i]) * dt \
+                / np.sqrt(ax ** 2 + ay ** 2 + az ** 2) * 0.1
+            if self.model == 0:
+                add /= 1.5
+            else:
+                add /= 1.1
+            if self.timestamp[i] >= 3000:
+                alpha_new += add
+
             # sign = np.sign(alpha)
             # if abs(abs(alpha) - 90) < 5:
             #     alpha = 90 * sign
@@ -248,9 +263,12 @@ class Running:
             #     alpha = 0
             alpha.append(alpha_new)
 
-            gx = gx * 0.5 * dt
-            gy = gy * 0.5 * dt
-            gz = gz * 0.5 * dt
+            [gx, gy, gz] = [self.gyroscopex[i] / 1250 * 90 * np.pi / 180 - bias_gyx,
+                            self.gyroscopey[i] / 1250 * 90 * np.pi / 180 - bias_gyy,
+                            self.gyroscopez[i] / 1250 * 90 * np.pi / 180 - bias_gyz]
+            gx = gx * dt * 0.5
+            gy = gy * dt * 0.5
+            gz = gz * dt * 0.5
             q0 = q0 - q1 * gx - q2 * gy - q3 * gz
             q1 = q1 + q0 * gx + q2 * gz - q3 * gy
             q2 = q2 + q0 * gy - q1 * gz + q3 * gx
@@ -267,12 +285,16 @@ class Running:
 
         self.timestamp = self.timestamp[:-1]
 
-        if self.model == 0:
-            self.angle = phi
-        elif self.model == 1:
-            self.angle = alpha
+        # 自由摆臂
+        # if self.model == 0:
+        #     self.angle = phi
+        # elif self.model == 1:
+        #     self.angle = theta
+        # Z轴分量
+        self.angle = alpha
 
         # plt.figure()
+        # plt.scatter(self.timestamp, self.angle)
         # plt.subplot(3, 1, 1)
         # plt.scatter(self.timestamp, gamma)
         # plt.subplot(3, 1, 2)
@@ -350,14 +372,14 @@ class Running:
                 x += length * np.cos(self.angle[i] * np.pi / 180)
                 y += length * np.sin(self.angle[i] * np.pi / 180)
                 counter += 1
-                # if x > 7.647:
-                #     x = 7.6
-                # elif x < -4.653:
-                #     x = -4.6
-                # if y < -3.21:
-                #     y = -3.2
-                # elif y > 4.694:
-                #     y = 4.6
+                if x > 7.647:
+                    x = 7.6
+                elif x < -4.653:
+                    x = -4.6
+                if y < -3.21:
+                    y = -3.2
+                elif y > 4.694:
+                    y = 4.6
                 position_x.append(x)
                 position_y.append(y)
         self.position_x = position_x
@@ -401,6 +423,7 @@ def plot_error(error_distance):
     for i in point:
         res = np.sum(error_distance <= i)
         lst.append(res / total)
+    plt.figure()
     plt.plot(point, lst)
     plt.xlabel('Localization Error/m')
     plt.ylabel('CDF')
@@ -425,25 +448,37 @@ def error_rate(pos_x, pos_y, gt):
     return error_distance
 
 
-def plot_position(r: Running, p=0):
+def error_rate_gt(pos_x, pos_y, gt_x, gt_y):
+    error = [0 for _ in range(len(pos_x))]
+    if len(pos_x) >= len(gt_x) * 2 - 1:
+        for i in range(len(gt_x)):
+            dis = line_magnitude(pos_x[2*i], pos_y[2*i], gt_x[i], gt_y[i])
+            error[2*i] = dis
+            if 2 * i + 1 < len(pos_x):
+                error[2*i+1] = dis
+    else:
+        offset = 2 * len(gt_x) - len(pos_x) - 1
+        for i in range(len(gt_x) - offset):
+            dis = line_magnitude(pos_x[2*i], pos_y[2*i], gt_x[i], gt_y[i])
+            error[2*i], error[2*i+1] = dis, dis
+        begin = len(pos_x) - len(gt_x) + 1
+        for i in range(offset):
+            dis = line_magnitude(pos_x[2*begin-1+i], pos_y[2*begin-1+i], gt_x[begin+i], gt_y[begin+i])
+            error[2*begin-1+i] = dis
+    return error
+
+
+def plot_position(r: Running, gt_x, gt_y):
     position_x = r.position_x
     position_y = r.position_y
 
     img = plt.imread('background.png')
-    fig, ax = plt.subplots(figsize=(4, 3), dpi=200)
+    fig, ax = plt.subplots(figsize=(3, 2), dpi=200)
     ax.imshow(img, extent=[-4.5 - 0.153, 7.8 - 0.153, -3.4 - 0.506, 5.2 - 0.506])
     plt.scatter(0, 0, c='r', s=10)
     plt.plot(position_x, position_y, marker='1')
-
-    # x = p.x
-    # y = p.y
-    #
-    # plt.scatter(x, y, c='g', s=10, marker='p')
-
-    gt_x = [[-1, -1], [-1, 1.5], [1.5, 1.5]]
-    gt_y = [[3.4, -3.2], [-3.2, -3.2], [-3.2, 3.4]]
-    for i in range(len(gt_x)):
-        plt.plot(gt_x[i], gt_y[i], c='r')
+    # for i in range(len(gt_x)):
+    plt.plot(gt_x, gt_y, c='r', marker='1')
 
 
 def Vsqrt(l: list):
@@ -529,7 +564,41 @@ def denoise(data):
     return recoeffs[:len(data)]
 
 
-def csv_position(run_csv, pos_csv):
+def csv_position(pos_csv):
+    dic = {}
+    with open(pos_csv, 'r', encoding='utf-8') as csvfile:
+        # 调用csv中的DictReader函数直接获取数据为字典形式
+        reader = csv.DictReader(csvfile)
+        # 创建一个counts计数一下 看自己一共添加的数据条数
+        counts = 0
+        min = 1e20
+        for each in reader:
+            if each['sample_batch'] not in dic.keys():
+                min = int(each['timestamp'])
+                p = Position()
+                dic[each['sample_batch']] = p
+            else:
+                p = dic[each['sample_batch']]
+            # 将数据中需要转换类型的数据转换类型。原本全是字符串（string）
+            each['x'] = float(each['x'])
+            each['y'] = float(each['y'])
+            each['z'] = float(each['z'])
+            p.x.append(each['x'])
+            p.y.append(each['y'])
+            p.z.append(each['z'])
+            p.sample_time.append(each['sample_time'])
+            p.time_rel.append(each['timestamp'])
+            each['timestamp'] = int(each['timestamp']) - min
+            p.timestamp.append(each['timestamp'])
+            p.sample_batch = each['sample_batch']
+    gt = [[-1, 3.4, -1, -3.2], [-1, -3.2, 1.5, -3.2], [1.5, -3.2, 1.5, 3.4]]
+    lst = ['27', '28', '29', '30', '31', '32']
+    for i in lst:
+        dic[i].error = error_rate(dic[i].x, dic[i].y, gt)
+    return dic
+
+
+def csv_running(run_csv, pos_csv):
     min = 1e20
     dic = {}
     with open(run_csv, 'r', encoding='utf-8') as csvfile:
@@ -567,12 +636,13 @@ def csv_position(run_csv, pos_csv):
             r.gyroscopex.append(each['gyroscopex'])
             r.gyroscopey.append(each['gyroscopey'])
             r.gyroscopez.append(each['gyroscopez'])
+    gt_x = [-1, -1, -1, -1, -1, -1, -0.6, 0.2, 1.2, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5]
+    gt_y = [3.4, 2.2, 1, -0.2, -1.4, -2.6, -3.2, -3.2, -3.2, -2.6, -1.4, -0.2, 1, 2.2, 3.4]
     lst = ['27', '28', '29', '30', '31', '32']
     # lst = ['30', '31', '32']
     # lst = ['27', '28', '29']
-    # lst = ['27', '30']
-    # lst = ['30']
-    dic_position = position.csv_position(pos_csv)
+    # lst = ['27']
+    dic_position = csv_position(pos_csv)
     for i in lst:
         sample_batch = dic[i].sample_batch
         pos = dic_position[sample_batch]
@@ -584,24 +654,25 @@ def csv_position(run_csv, pos_csv):
             dic[i].gyroscopey = denoise(dic[i].gyroscopey)
             dic[i].gyroscopez = denoise(dic[i].gyroscopez)
             # dic[i].plot_gyroscope()
-            # dic[i].plot_acc()
             dic[i].invalid_time()
-            # dic[i].plot_gyroscope()
             dic[i].step_counter_static()
+            # dic[i].plot_acc()
+            # dic[i].plot_gyroscope()
             dic[i].step_length()
             dic[i].cal_angle(-90)
             dic[i].pdr_position(init_position)
-            plot_position(dic[i], pos)
+            plot_position(dic[i], gt_x, gt_y)
 
         elif dic[i].model == 1:
-            # dic[i].invalid_time()
             # dic[i].plot_acc()
             dic[i].step_counter_dynamic()
             # dic[i].plot_gyroscope()
             dic[i].cal_angle(-90)
-            # dic[i].plot_gyroscope()
             dic[i].pdr_position(init_position)
-            plot_position(dic[i], pos)
+            plot_position(dic[i], gt_x, gt_y)
+        dic[i].error = error_rate_gt(dic[i].position_x, dic[i].position_y, gt_x, gt_y)
+        # print(dic[i].error)
+        # plot_error(dic[i].error)
     plt.show()
 
 
@@ -611,51 +682,68 @@ def json_position(pos_json):
     return json_data
 
 
-def json_running(run_json, pos_json):
-    gt = [[-1, 3.4, -1, -3.2], [-1, -3.2, 1.5, -3.2], [1.5, -3.2, 1.5, 3.4]]
-    pos = json_position(pos_json)
+def pdr_json(json_data):
+    # with open(get_pdr_json, 'r', encoding='utf-8') as jsonfile:
+    #     json_data = json.load(jsonfile)
+    return int(json_data['direction']), json_data['pos_data'], json_data['run_data'], json_data['truth_data']
+
+
+def json_running(get_pdr_json):
+    direction, pos, run_data, truth = pdr_json(get_pdr_json)
     pos_x = [i["x"] for i in pos]
     pos_x = denoise(pos_x)
     pos_y = [i["y"] for i in pos]
     pos_y = denoise(pos_y)
     init_position = begin_point(pos_x, pos_y, 10)
-    with open(run_json, 'r', encoding='utf-8') as jsonfile:
-        json_data = json.load(jsonfile)
-        run = Running()
-        run.sample_batch = json_data[0]["sample_batch"]
-        if not json_data[0]["isSwing"]:
-            run.model = 0
-        for each in json_data:
-            run.gyroscopex.append(each["gyroscopex"])
-            run.gyroscopey.append(each["gyroscopey"])
-            run.gyroscopez.append(each["gyroscopez"])
-            run.accx.append(each["accx"])
-            run.accy.append(each["accy"])
-            run.accz.append(each["accz"])
-            run.timestamp.append(each["time_rel"])
-            run.time_rel.append(each["timestamp"]['$numberLong'])
-            run.sample_time.append(each["sample_time"])
-        if run.model == 0:
-            run.gyroscopex = denoise(run.gyroscopex)
-            run.gyroscopey = denoise(run.gyroscopey)
-            run.gyroscopez = denoise(run.gyroscopez)
-            run.invalid_time()
-            run.step_counter_static()
-            run.step_length()
-        elif run.model == 1:
-            run.step_counter_dynamic()
-        run.cal_angle(-90)
-        run.pdr_position(init_position)
-        # plot_position(run)
-        # plt.show()
-        run.error = error_rate(run.position_x, run.position_y, gt)
-        run.get_inf()
+
+    gt_x, gt_y = [], []
+    for data in truth:
+        gt_x.append(data['x'])
+        gt_y.append(data['y'])
+
+    run = Running()
+    run.sample_batch = run_data[0]["sample_batch"]
+    if not run_data[0]["isSwing"]:
+        run.model = 0
+    for each in run_data:
+        run.gyroscopex.append(each["gyroscopex"])
+        run.gyroscopey.append(each["gyroscopey"])
+        run.gyroscopez.append(each["gyroscopez"])
+        run.accx.append(each["accx"])
+        run.accy.append(each["accy"])
+        run.accz.append(each["accz"])
+        run.timestamp.append(each["time_rel"])
+        run.time_rel.append(each["timestamp"])
+        run.sample_time.append(each["sample_time"])
+    if run.model == 0:
+        run.gyroscopex = denoise(run.gyroscopex)
+        run.gyroscopey = denoise(run.gyroscopey)
+        run.gyroscopez = denoise(run.gyroscopez)
+        run.invalid_time()
+        run.step_counter_static()
+        run.step_length()
+    elif run.model == 1:
+        run.step_counter_dynamic()
+    run.cal_angle(direction)
+    run.pdr_position(init_position)
+    run.error = error_rate_gt(run.position_x, run.position_y, gt_x, gt_y)
+    run.get_inf()
+    # plot_position(run)
+    # plot_error(run.error)
+    # plt.show()
+    
+    # python列表转json
+    jsonArr = json.dumps(run.inf, ensure_ascii=False)
+    print(jsonArr)
     return run.inf
 
 
 def main():
-    # csv_position('running.csv', 'position.csv')
-    a = json_running('run_29.json', 'pos_28.json')
+    data = sys.stdin.readline()
+    # csv_running('running.csv', 'position.csv')
+    # a = json_running('pdr_31.json')
+    json_data = json.loads(data)
+    json_running(json_data)
 
 
 if __name__ == '__main__':

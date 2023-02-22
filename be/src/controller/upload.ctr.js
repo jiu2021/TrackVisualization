@@ -5,6 +5,7 @@ const returnRes = require('../const_res');
 const { createPos } = require('../db/service/position.sv');
 const { createRun } = require('../db/service/running.sv');
 const { createTruth } = require('../db/service/truth.sv');
+const { addPdrArr, addPosArr, addTruthArr } = require('../db/service/user.sv');
 class UploadCtr {
   constructor() {
     this.file_name_arr = [];
@@ -36,6 +37,8 @@ class UploadCtr {
     this.file_name_arr.push(file.newFilename);
     console.log(this.file_name_arr);
     const_res.sample_arr = this.loadPosByPy('getPosition.py', file.newFilename);
+    // 记录到用户数据
+    addPosArr(const_res.sample_arr);
 
     // 返回响应
     const_res.filename = file.newFilename;
@@ -49,6 +52,7 @@ class UploadCtr {
     const const_res = {};
     // run_file是文件上传时的参数名
     const { run_file } = ctx.request.files;
+    console.log(ctx.request.files)
     // 检查文件是否为空
     if (!run_file) {
       return ctx.body = returnRes(400, '上传文件为空', {});
@@ -70,6 +74,8 @@ class UploadCtr {
     // 用于区分摆臂数据和非摆臂数据
     const { swing_arr } = ctx.request.body;
     const_res.sample_arr = this.loadRunByPy('getRunning.py', file.newFilename, swing_arr);
+    // 记录到用户数据
+    addPdrArr(const_res.sample_arr);
 
     // 返回响应
     const_res.filename = file.newFilename;
@@ -104,7 +110,12 @@ class UploadCtr {
     // 用于记录该truth对应哪些采样批次数据
     let { sample_arr } = ctx.request.body;
     sample_arr = JSON.parse(sample_arr);
-    const_res.sample_arr = sample_arr;
+    const_res.sample_arr = [];
+    for (let i of sample_arr) {
+      const_res.sample_arr.push(parseInt(i));
+    }
+    // 记录到用户数据
+    addTruthArr(const_res.sample_arr);
     this.loadTruthByPy('getGroundTruth.py', file.newFilename, sample_arr);
 
     // 返回响应
@@ -199,7 +210,7 @@ class UploadCtr {
     return Array.from(tmp_set);
   }
 
-  // 调用py脚本处理position.csv文件
+  // 调用py脚本处理truth.csv文件
   loadTruthByPy(py_script, filename, sample_arr) {
     // 同步执行
     const res = execSync(`python3 py/${py_script} ${filename}`);

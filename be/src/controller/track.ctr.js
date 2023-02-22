@@ -59,6 +59,7 @@ class TrackCtr {
   async getPdrTrackByBatch(ctx) {
     let { batch, direction } = ctx.query;
     batch = parseInt(batch);
+    direction = parseInt(direction);
     let result;
     try {
       const res = await findPdrByBatch(batch);
@@ -67,47 +68,51 @@ class TrackCtr {
         const run_data = await findRunByBatch(batch);
         const pos_data = await findPosByBatch(batch);
         const truth_data = await findTruthByBatch(batch);
-        const data = {
-          direction,
-          pos_data,
-          run_data,
-          truth_data,
-        };
-        return ctx.body = returnRes(200, '生成pdr路径成功', data);
         // 调用py
-        //result = this.getPdrTrackByPy(direction, pos_data, run_data, truth_data);
-
+        result = this.getPdrTrackByPy(direction, pos_data, run_data, truth_data);
       } else {
         result = res;
       }
     } catch (error) {
       console.log(error);
-      return ctx.body = returnRes(400, '生成pdr路径失败', {})
+      return ctx.body = returnRes(400, '生成pdr路径失败', {});
     }
 
     return ctx.body = returnRes(200, '生成pdr路径成功', result);
   }
 
   getPdrTrackByPy(direction, pos_data, run_data, truth_data) {
-    const data = {
+    const data_to_py = JSON.stringify({
       direction,
       pos_data,
       run_data,
       truth_data,
-    };
-    const data_to_py = JSON.stringify(data);
+    });
+
     try {
       // 同步方法
       const py = spawnSync('python3', ['py/getPdrTrack.py'], { input: data_to_py });
       const pdr_res = JSON.parse(py.stdout.toString('utf-8'));
+      const new_pdr = [];
       pdr_res.forEach(pdr => {
+        pdr = JSON.parse(pdr);
+        new_pdr.push(pdr);
         createPdr(pdr);
       });
-      return pdr_res;
+      return new_pdr;
     } catch (error) {
       console.error(error);
       return [];
     }
+  }
+
+  async getTruthTrackByBatch(ctx) {
+    const { batch } = ctx.query;
+    const res = await findTruthByBatch(parseInt(batch));
+    if (res.length == 0) {
+      return ctx.body = returnRes(400, '未找到真实路径', []);
+    }
+    return ctx.body = returnRes(200, '获取真实路径成功', res)
   }
 }
 

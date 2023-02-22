@@ -20,7 +20,19 @@ const userSchema = new Schema({
     type: Boolean,
     required: true,
     default: false
-  }
+  },
+  truth_arr: {
+    type: Array,
+    default: []
+  },
+  pos_arr: {
+    type: Array,
+    default: []
+  },
+  pdr_arr: {
+    type: Array,
+    default: []
+  },
 })
 
 var userModle = mongoose.model('users', userSchema);

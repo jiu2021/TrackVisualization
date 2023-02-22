@@ -12,6 +12,7 @@ class UserController {
       // @ts-ignore
       // eslint-disable-next-line no-unused-vars
       const { password, ...res } = await verfyUserPWD({ account, pwd });
+      console.log(res);
       const data = {
         // @ts-ignore
         username: res._doc.username,
@@ -43,6 +44,18 @@ class UserController {
     }
 
     await next();
+  }
+
+  async userInfo(ctx) {
+    const doc = ctx.state.user._doc;
+    const data = {
+      account: doc.account,
+      username: doc.username,
+      pdr_arr: doc.pdr_arr,
+      pos_arr: doc.pos_arr,
+      truth_arr: doc.truth_arr
+    }
+    return ctx.body = returnRes(200, '获取用户信息成功', data);
   }
 }
 
