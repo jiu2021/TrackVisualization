@@ -1,9 +1,9 @@
 <template>
-  <el-page-header :icon="null" title=" " class="header">
-    <template #content>
-      <span class="text-large font-1000 mr-3"> TrackVisualization </span>
-    </template>
-    <template #extra>
+  <div :icon="null" title=" " class="header">
+    <div class="h-left">
+      <img class="logo-img" src="@/assets/logo.png" alt="">
+    </div>
+    <div class="h-right">
       <div class="flex items-center">
         <div class="upload">
           <el-select v-model="option" class="m-2 choose-option" placeholder="Select File Type">
@@ -24,8 +24,8 @@
         <el-avatar :size="32" class="mr-3" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
         <div class="name">{{ username }}</div>
       </div>
-    </template>
-  </el-page-header>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -66,6 +66,17 @@ const uploadFile = (e: any) => {
           if (res.data.code == 200) {
             option.value = 0;
             emit('getUserInfo');
+            ElMessage({
+              showClose: true,
+              message: res.data.msg,
+              type: 'success',
+            });
+          } else {
+            ElMessage({
+              showClose: true,
+              message: res.data.msg,
+              type: 'error',
+            });
           }
         });
       } catch (error) {
@@ -80,6 +91,17 @@ const uploadFile = (e: any) => {
       reqUploadPos(formData).then(function (res) {
         if (res.data.code == 200) {
           emit('getUserInfo');
+          ElMessage({
+            showClose: true,
+            message: res.data.msg,
+            type: 'success',
+          });
+        } else {
+          ElMessage({
+            showClose: true,
+            message: res.data.msg,
+            type: 'error',
+          });
         }
       });
     } else if (option.value == 3) {
@@ -100,6 +122,17 @@ const uploadFile = (e: any) => {
           if (res.data.code == 200) {
             option.value = 0;
             emit('getUserInfo');
+            ElMessage({
+              showClose: true,
+              message: res.data.msg,
+              type: 'success',
+            });
+          } else {
+            ElMessage({
+              showClose: true,
+              message: res.data.msg,
+              type: 'error',
+            });
           }
         });
       } catch (error) {
@@ -143,10 +176,6 @@ const options = [
 </script>
 
 <style scoped>
-.text-large {
-  font-size: 28px;
-}
-
 .flex {
   display: flex;
   justify-content: center;
@@ -175,5 +204,18 @@ const options = [
 
 .choose-option {
   width: 120px;
+}
+
+.logo-img {
+  height: 55px;
+}
+
+.header {
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  box-shadow: 0px 15px 10px -15px #7e7e7e;
 }
 </style>

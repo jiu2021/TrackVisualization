@@ -51,7 +51,6 @@ watch(props.batch_track, (newVal: track) => {
 
 var chartDom: any;
 var myChart: any;
-var ecConfig = echarts.config
 // var new_option: EChartsOption;
 onMounted(() => init());
 
@@ -60,6 +59,12 @@ function showTruth(truth_arr: any) {
   for (let i = 0; i < truth_arr.length; i++) {
     const dot = truth_arr[i];
     option.series[0].data.push({ name: 'truth' + i, value: [dot.x, dot.y], symbolSize: 8, itemStyle: { color: 'red' } });
+    if (i < truth_arr.length - 1) {
+      const source = 'truth' + i;
+      let next = i + 1;
+      const target = 'truth' + next;
+      option.series[0].links.push({ source, target, lineStyle: { type: 'solid', color: 'red', width: 4, }, symbolSize: [1, 8] });
+    }
   }
   myChart.setOption(option);
 }
@@ -68,6 +73,12 @@ function showPos(pos_arr: any) {
   for (let i = 0; i < pos_arr.length; i++) {
     const dot = pos_arr[i];
     option.series[0].data.push({ name: 'pos' + i, value: [dot.x, dot.y], symbolSize: 6 });
+    if (i < pos_arr.length - 1) {
+      const source = 'pos' + i;
+      let next = i + 1;
+      const target = 'pos' + next;
+      option.series[0].links.push({ source, target, lineStyle: { type: 'solid', color: 'blue', width: 3, }, symbolSize: [1, 2] });
+    }
   }
   myChart.setOption(option);
 }
@@ -81,7 +92,8 @@ function showPdr(pdr_arr: any) {
       const source = 'pdr' + i;
       let next = i + 1;
       const target = 'pdr' + next;
-      option.series[0].links.push({ source, target, ineStyle: { type: 'solid', color: '#aaa', width: 10, }, symbolSize: [1, 8] });
+
+      option.series[0].links.push({ source, target, lineStyle: { type: 'solid', color: 'green', width: 5, }, symbolSize: [1, 8] });
     }
   }
   myChart.setOption(option);

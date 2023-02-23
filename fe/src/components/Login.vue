@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrapper">
     <el-card class="login-form">
-      <h2>TrackVisualization系统</h2>
+      <img class="logo" src="@/assets/logo-m.png" alt="">
       <el-input v-model.trim="account" placeholder="请输入管理员账号" size="large" clearable class="account-input">
         <template #prepend>
           <span>账号</span>
@@ -18,9 +18,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { loginM } from "@/model";
-import { reqLogin } from "@/api";
+import { reqLogin, reqUserData } from "@/api";
 import { ElMessage } from "element-plus";
 import router from "@/router";
 const account = ref('');
@@ -34,7 +34,7 @@ const goLogin = (account: string, pwd: string) => {
         localStorage.setItem('username', response.data.data.username)
         ElMessage({
           showClose: true,
-          message: '登陆成功',
+          message: '登录成功',
           type: 'success',
         });
         router.push({ name: 'home' });
@@ -48,6 +48,19 @@ const goLogin = (account: string, pwd: string) => {
     })
   }
 }
+
+onMounted(() => {
+  reqUserData().then(function (res) {
+    if (res.data.code == 200) {
+      router.push({ name: 'home' });
+      ElMessage({
+        showClose: true,
+        message: '自动登录成功',
+        type: 'success',
+      });
+    }
+  })
+})
 </script>
 
 <style scoped>
@@ -60,7 +73,7 @@ const goLogin = (account: string, pwd: string) => {
 
 .login-form {
   width: 450px;
-  height: 320px;
+  height: 380px;
   margin-top: 200px;
   padding: 0 20px;
 }
@@ -71,5 +84,10 @@ const goLogin = (account: string, pwd: string) => {
 
 .btn {
   margin-top: 30px;
+}
+
+.logo {
+  height: 120px;
+  margin-bottom: 20px;
 }
 </style>

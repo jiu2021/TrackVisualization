@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const returnRes = require('../const_res');
-const { verfyUserPWD } = require('../db/service/user.sv');
+const { verfyUserPWD, getInfo } = require('../db/service/user.sv');
 
 class UserController {
   // 用户登陆
@@ -47,13 +47,14 @@ class UserController {
   }
 
   async userInfo(ctx) {
-    const doc = ctx.state.user._doc;
+    const doc = await getInfo();
+    console.log(doc);
     const data = {
-      account: doc.account,
-      username: doc.username,
-      pdr_arr: doc.pdr_arr,
-      pos_arr: doc.pos_arr,
-      truth_arr: doc.truth_arr
+      account: doc?.account,
+      username: doc?.username,
+      pdr_arr: doc?.pdr_arr,
+      pos_arr: doc?.pos_arr,
+      truth_arr: doc?.truth_arr
     }
     return ctx.body = returnRes(200, '获取用户信息成功', data);
   }

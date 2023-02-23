@@ -1,11 +1,9 @@
 <template>
-  <el-card class="box-card">
-    <template #header>
-      <div class="card-header">
-        <span>当前位置信息</span>
-        <span>{{ props.cur_dot.type }}</span>
-      </div>
-    </template>
+  <div class="box-card">
+    <div class="card-header">
+      <span>当前位置信息</span>
+      <span>{{ props.cur_dot.type }}</span>
+    </div>
     <div class="more-info">
       <div v-if="props.cur_dot.type == dot_type.pdr" class="info">
         <div>x:{{ round(show_dot.x, 2) }}</div>
@@ -19,17 +17,17 @@
         <div>accz:{{ round(show_dot.accz, 2) }}</div>
         <div>gyroscopez:{{ round(show_dot.gyroscopez, 2) }}</div>
         <div>error:{{ round(show_dot.error, 2) }}</div>
-        <div>time:{{ show_dot.sample_time }}</div>
       </div>
       <div v-else class="info">
         <div>x:{{ round(show_dot.x, 2) }}</div>
         <div>y:{{ round(show_dot.y, 2) }}</div>
       </div>
+      <div v-if="props.cur_dot.type != dot_type.truth" class="time">time:{{ show_dot.sample_time }}</div>
     </div>
-  </el-card>
-  <el-card class="box-card">
+  </div>
+  <div class="box-card">
     <div id="cdfbox"></div>
-  </el-card>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -52,11 +50,12 @@ watch(props.cur_dot, (newVal) => {
       err_arr.push(e.error);
     });
     // cdf
-    const cdf = getCDF(props.batch_track.truth.length, err_arr);
+    const { cdf, avg } = getCDF(props.batch_track.truth.length, err_arr);
     option.series[0].data = [{ value: [0, 0] }];
     for (let i of cdf) {
       option.series[0].data.push({ value: [i.x, i.y] });
     }
+    option.title.subtext = '平均误差：' + round(avg, 3);
     myChart.setOption(option);
   } else if (newVal.type == dot_type.pos) {
     show_dot.value = props.batch_track.pos[newVal.index];
@@ -78,6 +77,13 @@ function init() {
 }
 
 var option = {
+  title: {
+    show: true,
+    text: 'CDF曲线',
+    x: 'center',
+    y: 'top',
+    subtext: ''
+  },
   xAxis: {
     type: 'value'
   },
@@ -95,10 +101,6 @@ var option = {
     }
   ]
 };
-
-
-
-
 
 
 interface dot_info {
@@ -132,5 +134,23 @@ enum dot_type {
 #cdfbox {
   width: 300px;
   height: 300px;
+}
+
+.box-card {
+  box-shadow: var(--el-box-shadow-lighter);
+  margin-bottom: 10px;
+}
+
+.card-header {
+  padding: 10px 0;
+}
+
+.more-info {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+
+.time {
+  margin-top: 10px;
 }
 </style>

@@ -1,11 +1,11 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-header>
+      <el-header class="header-wrapper">
         <Header @getUserInfo="getUserInfo"></Header>
       </el-header>
       <el-container>
-        <el-aside width="280px">
+        <el-aside width="300px">
           <List @showWhich="showWhich" :userInfo="userInfo"></List>
         </el-aside>
         <el-main>
@@ -28,6 +28,7 @@ import Info from './Info.vue';
 
 import { ref, onMounted, watch } from "vue";
 import { reqPdrTrack, reqPosTrack, reqTruthTrack, reqUserData } from '@/api';
+import { ElMessage } from 'element-plus';
 const cur_batch = ref({
   batch: 0,
   truth: true,
@@ -65,16 +66,31 @@ watch(cur_batch.value, (newVal: batch) => {
   reqTruthTrack({ batch: newVal.batch }).then(function (res) {
     if (res.data.code == 200) {
       batch_track.value.truth = res.data.data;
+      ElMessage({
+        showClose: true,
+        message: res.data.msg,
+        type: 'success',
+      });
     }
   });
   reqPosTrack({ batch: newVal.batch }).then(function (res) {
     if (res.data.code == 200) {
       batch_track.value.pos = res.data.data;
+      ElMessage({
+        showClose: true,
+        message: res.data.msg,
+        type: 'success',
+      });
     }
   });
   reqPdrTrack({ batch: newVal.batch, direction: -90 }).then(function (res) {
     if (res.data.code == 200) {
       batch_track.value.pdr = res.data.data;
+      ElMessage({
+        showClose: true,
+        message: res.data.msg,
+        type: 'success',
+      });
     }
   })
 });
@@ -132,4 +148,12 @@ enum dot_type {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.el-aside {
+  padding: 19px 10px 0 10px;
+}
+
+.header-wrapper {
+  padding: 0;
+}
+</style>

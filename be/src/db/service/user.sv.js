@@ -6,6 +6,9 @@ class UserService {
     return res ? res : null;
   }
 
+  async getInfo() {
+    return await User.findOne({ account: '10371037' }).exec();
+  }
   async addTruthArr(arr) {
     return await User.updateOne({ account: '10371037' }, { truth_arr: arr });
   }

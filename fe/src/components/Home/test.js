@@ -22,6 +22,11 @@ export function getCDF(gt_length, err_arr) {
       error_gt.push(error[2 * begin - 1 + i]);
     }
   }
+  var err_average = error_gt.reduce((prev, current, index, arr) => {
+    return prev + current;
+  });
+  err_average = err_average / error_gt.length;
+
   // console.log(error_gt)
   var max = Math.max.apply(Math, error_gt);
   // console.log(max)
@@ -29,7 +34,7 @@ export function getCDF(gt_length, err_arr) {
   var cdf_y = []
 
   for (let i = 0; i < 200; i++) {
-    let thr = (max + 0.1) / 100 * i;
+    let thr = (max + 0.1) / 200 * i;
     value.push(thr)
     let num = 0
     error_gt.forEach(item => {
@@ -43,7 +48,7 @@ export function getCDF(gt_length, err_arr) {
   // console.log(cdf_y);
   var cdf = []
   for (let i = 0; i < value.length; i++) {
-    cdf.push({ x: value[i], y: cdf_y[i] });
+    cdf.push({ x: value[i], y: cdf_y[i] / gt_length });
   }
-  return cdf
+  return { cdf: cdf, avg: err_average };
 }
