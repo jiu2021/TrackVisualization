@@ -23,8 +23,7 @@ class TrackCtr {
     // });
 
     const pos_track = this.getPosTrackByPy(res);
-    const code = pos_track.length != 0 ? 200 : 400;
-    return ctx.body = returnRes(code, '获取定位路径成功', pos_track)
+    return ctx.body = returnRes(200, '获取定位路径成功', pos_track)
   }
 
   getPosTrackByPy(pos_data) {

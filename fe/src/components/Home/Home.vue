@@ -76,6 +76,7 @@ watch(cur_batch.value, (newVal: batch) => {
   reqPosTrack({ batch: newVal.batch }).then(function (res) {
     if (res.data.code == 200) {
       batch_track.value.pos = res.data.data;
+      console.log(batch_track.value.pos)
       ElMessage({
         showClose: true,
         message: res.data.msg,

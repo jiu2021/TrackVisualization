@@ -246,8 +246,8 @@ class Running:
             if self.model == 0:
                 add /= 1.5
             else:
-                add /= 1.1
-            if self.timestamp[i] >= 3000:
+                add /= 1.3
+            if self.timestamp[i] >= 5000:
                 alpha_new += add
 
             # sign = np.sign(alpha)

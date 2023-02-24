@@ -76,4 +76,8 @@ ul {
 .ml-2 {
   margin: 0 3px;
 }
+.list {
+  height: 70vh;
+  overflow-y: scroll;
+}
 </style>

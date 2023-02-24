@@ -9,7 +9,7 @@ mongoose.connect(`mongodb://${user}:${pwd}@${ip}:27017/BLOG`);*/
 
 //开发环境
 mongoose.set('strictQuery', true);
-mongoose.connect('mongodb://127.0.0.1:27017/TRACK_new');
+mongoose.connect('mongodb://127.0.0.1:27017/TRACK');
 
 //监听数据库连接状态
 mongoose.connection.once('open', () => {

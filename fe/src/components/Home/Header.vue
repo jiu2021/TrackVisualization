@@ -6,7 +6,7 @@
     <div class="h-right">
       <div class="flex items-center">
         <div class="upload">
-          <el-select v-model="option" class="m-2 choose-option" placeholder="Select File Type">
+          <el-select v-model="option" class="m-2 choose-option" placeholder="选择文件">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
           <el-input v-show="option == 1" class="truth_arr" v-model.trim="truth" placeholder="所有批次序号(','为间隔)" />
@@ -64,7 +64,7 @@ const uploadFile = (e: any) => {
         formData.append('sample_arr', JSON.stringify(truth_arr));
         reqUploadTruth(formData).then(function (res) {
           if (res.data.code == 200) {
-            option.value = 0;
+            option.value = null;
             emit('getUserInfo');
             ElMessage({
               showClose: true,
@@ -105,22 +105,21 @@ const uploadFile = (e: any) => {
         }
       });
     } else if (option.value == 3) {
-      // formData.append('run_file', e.file)
-      // formData.append('swing_arr', JSON.stringify([30, 31, 32]));
-      // reqUploadRun(formData)
       const swing_arr = swing.value.split(',');
+      console.log(swing_arr)
       try {
-        if (swing_arr.length <= 0) throw new Error("");
-        for (let i of swing_arr) {
-          if (typeof (parseInt(i)) != 'number' || parseInt(i) % 1 != 0) {
-            throw new Error("");
-          }
+        if (!(swing_arr.length == 1 && swing_arr[0] == '')) {
+          for (let i of swing_arr) {
+            if (typeof (parseInt(i)) != 'number' || parseInt(i) % 1 != 0) {
+              throw new Error("");
+            }
+          } 
         }
         formData.append('run_file', e.file)
         formData.append('swing_arr', JSON.stringify(swing_arr));
         reqUploadRun(formData).then(function (res) {
           if (res.data.code == 200) {
-            option.value = 0;
+            option.value = null;
             emit('getUserInfo');
             ElMessage({
               showClose: true,
@@ -158,7 +157,7 @@ onMounted(() => {
 });
 
 // 多选框
-const option = ref(0)
+const option = ref(null)
 const options = [
   {
     value: 1,

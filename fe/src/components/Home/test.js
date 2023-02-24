@@ -50,5 +50,6 @@ export function getCDF(gt_length, err_arr) {
   for (let i = 0; i < value.length; i++) {
     cdf.push({ x: value[i], y: cdf_y[i] / gt_length });
   }
+  console.log(cdf, err_average)
   return { cdf: cdf, avg: err_average };
 }

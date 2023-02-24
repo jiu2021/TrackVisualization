@@ -38,7 +38,7 @@ class UploadCtr {
     console.log(this.file_name_arr);
     const_res.sample_arr = this.loadPosByPy('getPosition.py', file.newFilename);
     // 记录到用户数据
-    addPosArr(const_res.sample_arr);
+    const_res.sample_arr.length != 0 && addPosArr(const_res.sample_arr);
 
     // 返回响应
     const_res.filename = file.newFilename;
@@ -72,10 +72,11 @@ class UploadCtr {
     this.file_name_arr.push(file.newFilename);
     console.log(this.file_name_arr);
     // 用于区分摆臂数据和非摆臂数据
-    const { swing_arr } = ctx.request.body;
+    let { swing_arr } = ctx.request.body;
+    swing_arr = JSON.parse(swing_arr)
     const_res.sample_arr = this.loadRunByPy('getRunning.py', file.newFilename, swing_arr);
     // 记录到用户数据
-    addPdrArr(const_res.sample_arr);
+    const_res.sample_arr.length != 0 && addPdrArr(const_res.sample_arr);
 
     // 返回响应
     const_res.filename = file.newFilename;
@@ -115,7 +116,7 @@ class UploadCtr {
       const_res.sample_arr.push(parseInt(i));
     }
     // 记录到用户数据
-    addTruthArr(const_res.sample_arr);
+    const_res.sample_arr.length != 0 && addTruthArr(const_res.sample_arr);
     this.loadTruthByPy('getGroundTruth.py', file.newFilename, sample_arr);
 
     // 返回响应
@@ -196,7 +197,7 @@ class UploadCtr {
       for (let i = 0; i < run_json.length; i++) {
         for (let j = 0; j < run_json[i].length; j++) {
           let res = JSON.parse(run_json[i][j]);
-          tmp_set.add(res.sample_batch)
+          tmp_set.add(res.sample_batch);
           if (swing_arr.includes(res.sample_batch.toString())) {
             createRun({ ...res, isSwing: true });
           } else {
