@@ -39,7 +39,7 @@ require('dotenv').config();
 
 const port = 8000;
 app.listen(port, () => {
-  console.log(`http://localhost:${port}`);
+  console.log(`服务启动成功，http://localhost:${port}`);
 })
 
 

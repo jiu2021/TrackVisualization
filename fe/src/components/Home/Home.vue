@@ -1,5 +1,5 @@
 <template>
-  <div class="common-layout">
+  <div class="common-layout" v-title="name">
     <el-container>
       <el-header class="header-wrapper">
         <Header @getUserInfo="getUserInfo"></Header>
@@ -35,6 +35,7 @@ const cur_batch = ref({
   pos: true,
   pdr: true,
 });
+const name = '主页';
 const showWhich = (item: any) => {
   cur_batch.value.batch = item.batch;
   cur_batch.value.truth = item.truth;

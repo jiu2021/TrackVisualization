@@ -3,12 +3,11 @@ const trackCtr = require('../controller/track.ctr');
 const { auth } = require('../controller/user.ctr');
 
 const router = new Router({ prefix: '/api/track' });
-
 // 获取直接定位路径
 router.get('/pos', auth, ctx => trackCtr.getPosTrackByBatch(ctx));
 // 获取pdr路径
 router.get('/pdr', auth, ctx => trackCtr.getPdrTrackByBatch(ctx));
-// 获取pdr路径
+// 获取truth路径
 router.get('/truth', auth, ctx => trackCtr.getTruthTrackByBatch(ctx));
 
 module.exports = router;

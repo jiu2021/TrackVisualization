@@ -683,8 +683,8 @@ def json_position(pos_json):
 
 
 def pdr_json(json_data):
-    # with open(get_pdr_json, 'r', encoding='utf-8') as jsonfile:
-    #     json_data = json.load(jsonfile)
+    with open(get_pdr_json, 'r', encoding='utf-8') as jsonfile:
+        json_data = json.load(jsonfile)
     return int(json_data['direction']), json_data['pos_data'], json_data['run_data'], json_data['truth_data']
 
 
@@ -733,17 +733,17 @@ def json_running(get_pdr_json):
     # plt.show()
     
     # python列表转json
-    jsonArr = json.dumps(run.inf, ensure_ascii=False)
+    # jsonArr = json.dumps(run.inf, ensure_ascii=False)
     print(jsonArr)
     return run.inf
 
 
 def main():
-    data = sys.stdin.readline()
+    a = json_running('pdr_31.json')
+    # data = sys.stdin.readline()
     # csv_running('running.csv', 'position.csv')
-    # a = json_running('pdr_31.json')
-    json_data = json.loads(data)
-    json_running(json_data)
+    # json_data = json.loads(data)
+    # json_running(json_data)
 
 
 if __name__ == '__main__':

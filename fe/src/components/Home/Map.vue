@@ -137,13 +137,11 @@ var option = {
     type: 'value',
     min: -4.653,
     max: 7.643,
-    // data: [-4.653, 7.643]12.296
   },
   yAxis: {
     type: 'value',
     min: -3.906,
     max: 4.694,
-    // data: [-3.906, 4.694]8.6
   },
   series: [
     {
@@ -169,13 +167,13 @@ var option = {
   graphic: [
     {
       type: 'image', // 图形元素类型
-      id: 'logo', // 更新或删除图形元素时指定更新哪个图形元素，如果不需要用可以忽略。
+      id: 'logo',
       right: 'center', // 根据父元素进行定位 （居中）
-      bottom: '0%', // 根据父元素进行定位   （0%）, 如果bottom的值是 0，也可以删除该bottom属性值。
-      z: 0,  // 层叠
+      bottom: '0',
+      z: 0,
       bounding: 'all', // 决定此图形元素在定位时，对自身的包围盒计算方式
       style: {
-        image: 'http://localhost:8888/background.svg', // 这里一定要注意、注意，必须是https开头的图片路径地址
+        image: 'http://localhost:8890/background.svg',
         width: 800,
         height: 559
       }

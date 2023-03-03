@@ -1,5 +1,5 @@
 <template>
-  <div class="login-wrapper">
+  <div class="login-wrapper" v-title="name">
     <el-card class="login-form">
       <img class="logo" src="@/assets/logo-m.png" alt="">
       <el-input v-model.trim="account" placeholder="请输入管理员账号" size="large" clearable class="account-input">
@@ -23,6 +23,7 @@ import { loginM } from "@/model";
 import { reqLogin, reqUserData } from "@/api";
 import { ElMessage } from "element-plus";
 import router from "@/router";
+const name = "登录";
 const account = ref('');
 const pwd = ref('');
 const goLogin = (account: string, pwd: string) => {

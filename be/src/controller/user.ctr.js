@@ -42,7 +42,6 @@ class UserController {
       console.error('无效的token', err);
       return ctx.body = returnRes(400, '无效的token', {});
     }
-
     await next();
   }
 

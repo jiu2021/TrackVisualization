@@ -87,7 +87,6 @@ class TrackCtr {
       run_data,
       truth_data,
     });
-
     try {
       // 同步方法
       const py = spawnSync('python3', ['py/getPdrTrack.py'], { input: data_to_py });

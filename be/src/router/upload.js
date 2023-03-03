@@ -3,12 +3,11 @@ const uploadCtr = require('../controller/upload.ctr');
 const { auth } = require('../controller/user.ctr');
 
 const router = new Router({ prefix: '/api/upload' });
-
 // pos上传接口
 router.post('/pos', auth, ctx => uploadCtr.uploadPos(ctx));
-// pos上传接口
+// run上传接口
 router.post('/run', auth, ctx => uploadCtr.uploadRun(ctx));
-// pos上传接口
+// truth上传接口
 router.post('/truth', auth, ctx => uploadCtr.uploadTruth(ctx));
 
 router.get('/test', (ctx) => {
