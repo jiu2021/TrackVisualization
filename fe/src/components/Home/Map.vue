@@ -173,7 +173,7 @@ var option = {
       z: 0,
       bounding: 'all', // 决定此图形元素在定位时，对自身的包围盒计算方式
       style: {
-        image: 'http://localhost:8890/background.svg',
+        image: 'http://localhost:8888/background.svg',
         width: 800,
         height: 559
       }
